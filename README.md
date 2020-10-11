@@ -20,4 +20,3 @@ Essentials
 ----------
 
 * [See the docs](http://mybatis.github.io/spring/)
-# spring-mybatis-spring-2.0.0
