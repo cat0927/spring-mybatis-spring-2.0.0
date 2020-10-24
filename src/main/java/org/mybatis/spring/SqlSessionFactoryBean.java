@@ -1,5 +1,5 @@
 /**
- *    Copyright 2010-2019 the original author or authors.
+ *    Copyright 2010-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -397,6 +397,8 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
 
   /**
    * {@inheritDoc}
+   *
+   *  项目启动 -》 整合 Spring 源码的入口。
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -405,6 +407,9 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     state((configuration == null && configLocation == null) || !(configuration != null && configLocation != null),
               "Property 'configuration' and 'configLocation' can not specified with together");
 
+    /**
+     * {@link #buildSqlSessionFactory()}
+     */
     this.sqlSessionFactory = buildSqlSessionFactory();
   }
 
@@ -417,6 +422,8 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
    *
    * @return SqlSessionFactory
    * @throws IOException if loading the config file failed
+   *
+   *  构建 SqlSessionFactory。
    */
   protected SqlSessionFactory buildSqlSessionFactory() throws IOException {
 
@@ -517,6 +524,10 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
         try {
           XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(mapperLocation.getInputStream(),
               targetConfiguration, mapperLocation.toString(), targetConfiguration.getSqlFragments());
+
+          /**
+           *  解析 XMLMapper {@link XMLMapperBuilder#parse()}
+           */
           xmlMapperBuilder.parse();
         } catch (Exception e) {
           throw new NestedIOException("Failed to parse mapping resource: '" + mapperLocation + "'", e);
@@ -529,15 +540,27 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
       LOGGER.debug(() -> "Property 'mapperLocations' was not specified or no matching resources found");
     }
 
+
+    /**
+     * 构建 SqlSessionFactoryBuilder {@link SqlSessionFactoryBuilder#build(Configuration)}
+     *
+     *  默认实现类：`DefaultSqlSessionFactory`
+     */
     return this.sqlSessionFactoryBuilder.build(targetConfiguration);
   }
 
   /**
    * {@inheritDoc}
+   *
+   *  实现 `FactoryBean` #getObject() 返回一个由 FactoryBean 创建的 Bean 实例。
    */
   @Override
   public SqlSessionFactory getObject() throws Exception {
     if (this.sqlSessionFactory == null) {
+
+      /**
+       *  sqlSessionFactoryBean 初始化 {@link #afterPropertiesSet()}
+       */
       afterPropertiesSet();
     }
 
@@ -546,6 +569,8 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
 
   /**
    * {@inheritDoc}
+   *
+   *  返回一个由 FactoryBean 创建的 Bean 实例的类型
    */
   @Override
   public Class<? extends SqlSessionFactory> getObjectType() {
@@ -554,6 +579,8 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
 
   /**
    * {@inheritDoc}
+   *
+   *  FactoryBean 创建的 Bean 实例是否是单例
    */
   @Override
   public boolean isSingleton() {

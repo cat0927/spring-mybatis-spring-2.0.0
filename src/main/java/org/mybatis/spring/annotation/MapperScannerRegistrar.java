@@ -1,5 +1,5 @@
 /**
- *    Copyright 2010-2019 the original author or authors.
+ *    Copyright 2010-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -63,9 +63,13 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
 
   /**
    * {@inheritDoc}
+   *
+   *  核心实现。
    */
   @Override
   public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+
+    // 获取当前注解信息。
     AnnotationAttributes mapperScanAttrs = AnnotationAttributes
         .fromMap(importingClassMetadata.getAnnotationAttributes(MapperScan.class.getName()));
     if (mapperScanAttrs != null) {
@@ -75,6 +79,7 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
 
   void registerBeanDefinitions(AnnotationAttributes annoAttrs, BeanDefinitionRegistry registry) {
 
+    // 创建 Mapper 扫描类，该类会自动扫描指定目录并将 Mapper 封装成 一个个 BeanDefinition 并添加到 BeanDefinitionRegistry 中
     ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
 
     // this check is needed in Spring 3.1
@@ -119,7 +124,14 @@ public class MapperScannerRegistrar implements ImportBeanDefinitionRegistrar, Re
             .map(ClassUtils::getPackageName)
             .collect(Collectors.toList()));
 
+    /**
+     * 执行过滤 {@link ClassPathMapperScanner#registerFilters()}
+     */
     scanner.registerFilters();
+
+    /**
+     * 开始扫描 {@link ClassPathMapperScanner#doScan(String...)}
+     */
     scanner.doScan(StringUtils.toStringArray(basePackages));
   }
 
